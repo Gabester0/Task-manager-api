@@ -1,4 +1,3 @@
-// require('dotenv').config();  //remove line 1 before Heroku deployment
 const express = require('express');
 const app = express();
 const cors = require('cors');
