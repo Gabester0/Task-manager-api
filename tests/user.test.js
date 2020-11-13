@@ -29,6 +29,63 @@ test(`Should signup a new user`, async()=>{
     expect(user.password).not.toBe(`MyPass777!@`)
 })
 
+test(`Should not sign up new user with invalid name`, async ()=>{
+    await request(app)
+        .post('/users')
+        .send({
+            email: `jesterGabe@test.com`,
+            password: `MyPass777!@`
+        })
+        .send()
+        .expect(400)
+})
+
+test(`Should not sign up new user with invalid email || password`, async ()=>{
+    //Missing `@`
+    await request(app)
+        .post('/users')
+        .send({
+            name: `TestGabe`,
+            email: `jesterGabe.com`,
+            password: `MyPass777!@`
+        })
+        .send()
+        .expect(400)
+    // Missing email field
+    await request(app)
+        .post('/users')
+        .send({
+            name: `TestGabe`,
+            password: `MyPass777!@`
+        })
+        .send()
+        .expect(400)
+    // Missing `.com`
+    await request(app)
+        .post('/users')
+        .send({
+            name: `TestGabe`,
+            email: `jesterGabe@gmail`,
+            password: `MyPass777!@`
+        })
+        .send()
+        .expect(400)
+})
+
+test(`Should not sign up new user with invalid password`, async ()=>{
+    // Short password
+    await request(app)
+        .post('/users')
+        .send({
+            name: `TestGabe`,
+            email: `jesterGabe@test.com`,
+            password: `MyPass`
+        })
+        .send()
+        .expect(400)
+})
+
+
 test(`Should login existing user`, async()=>{
     const response = await request(app).post(`/users/login`).send({
         email: userOne.email,
@@ -107,3 +164,11 @@ test(`Should update valid user fields`, async()=>{
         .send({"location": "Bora Bora"})
         expect(400)
 })
+
+
+//
+// User Test Ideas
+//
+// Should not update user if unauthenticated
+// Should not update user with invalid name/email/password
+// Should not delete user if unauthenticated
