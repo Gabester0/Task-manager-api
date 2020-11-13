@@ -151,6 +151,8 @@ test(`Should not delete account for unauthenticated user`, async()=>{
         .delete(`/users/me`)
         .send()
         .expect(401)
+    const user = await User.findById(userOneId);
+    expect(user).not.toBeNull();
 })
 
 test(`Should upload avatar image`, async()=>{

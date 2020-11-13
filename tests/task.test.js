@@ -43,14 +43,36 @@ test(`User should not be able to delete another users tasks`, async()=>{
         .set(`Authorization`, `Bearer ${userTwo.tokens[0].token}`)
         .send()
         .expect(400)
-    const task = await Task.findById(taskOne._id);
-    expect(task).not.toBeNull();
-})
-
-
-// Task Test Ideas
-//
+        const task = await Task.findById(taskOne._id);
+        expect(task).not.toBeNull();
+    })
+    
 // Should not create task with invalid description/completed
+test(`Should not be able to create task with invalid values`, async()=>{
+    // No Description field
+    const noDescription = delete taskOne.description
+    await request(app)
+        .post(`/tasks`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({ ...noDescription})
+        .expect(400)
+    // Empty Description Field
+    const emptyDescription = taskOne;
+    emptyDescription.description = ``
+    await request(app)
+        .post(`/tasks`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({ ...emptyDescription})
+        .expect(400)
+    // Completed is not a boolean
+    const invalidCompleted = taskOne;
+    invalidCompleted.completed = `false`
+    await request(app)
+        .post(`/tasks`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({ ...invalidCompleted})
+        .expect(400)
+})
 // Should not update task with invalid description/completed
 // Should delete user task
 // Should not delete task if unauthenticated
