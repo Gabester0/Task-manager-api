@@ -73,6 +73,14 @@ test(`Should not sign up new user with invalid email || password`, async ()=>{
 })
 
 test(`Should not sign up new user with invalid password`, async ()=>{
+    // No password
+    await request(app)
+        .post('/users')
+        .send({
+            name: `TestGabe`,
+            email: `jesterGabe@test.com`
+        })
+        .expect(400)
     // Short password
     await request(app)
         .post('/users')
@@ -81,7 +89,15 @@ test(`Should not sign up new user with invalid password`, async ()=>{
             email: `jesterGabe@test.com`,
             password: `MyPass`
         })
-        .send()
+        .expect(400)
+    // Password contains the word `password`
+    await request(app)
+        .post('/users')
+        .send({
+            name: `TestGabe`,
+            email: `jesterGabe@test.com`,
+            password: `Mypassword`
+        })
         .expect(400)
 })
 
@@ -129,6 +145,7 @@ test(`Should delete account for authenticated user`, async ()=>{
     expect(user).toBeNull();
 })
 
+// Should not delete user if unauthenticated
 test(`Should not delete account for unauthenticated user`, async()=>{
     await request(app)
         .delete(`/users/me`)
@@ -157,18 +174,78 @@ test(`Should update valid user fields`, async()=>{
         expect(user.name).toEqual(`Gabe`)
     })
     
-    test(`Should not update invalid user fields`, async()=>{
+test(`Should not update invalid user fields`, async()=>{
+    await request(app)
+    .patch(`/users/me`)
+    .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+    .send({"location": "Bora Bora"})
+    expect(400)
+})
+
+// Should not update user with invalid name/email/password
+test(`Should not update user with invalid values`, async()=>{
+    // No Name
         await request(app)
         .patch(`/users/me`)
         .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
-        .send({"location": "Bora Bora"})
-        expect(400)
+        .send({
+            name: ``
+        })
+        .expect(400)
+    // No Password
+    await request(app)
+        .patch(`/users/me`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            password: null
+        })
+        .expect(400)
+    // Password too short
+    await request(app)
+        .patch(`/users/me`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            password: `MyPass`
+        })
+        .expect(400)
+    // Password contains the word `password`
+    await request(app)
+        .patch(`/users/me`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            password: `Mypassword`
+        })
+        .expect(400)
+    // No Email
+    await request(app)
+        .patch(`/users/me`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            email: ``
+        })
+        .expect(400)
+    // Email does not contain `.com`
+    await request(app)
+        .patch(`/users/me`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            email: `newEmail@mail`
+        })
+        .expect(400)
+    // Email does not contain `@`
+    await request(app)
+        .patch(`/users/me`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            email: `newEmail.gmail.com`
+        })
+        .expect(400)
 })
 
-
-//
-// User Test Ideas
-//
 // Should not update user if unauthenticated
-// Should not update user with invalid name/email/password
-// Should not delete user if unauthenticated
+test(`Should not update user fields for unauthenticated user`, async()=>{
+    await request(app)
+    .patch(`/users/me`)
+    .send({"location": "Bora Bora"})
+    expect(400)
+})
