@@ -181,7 +181,7 @@ test(`Should not update invalid user fields`, async()=>{
     .patch(`/users/me`)
     .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
     .send({"location": "Bora Bora"})
-    expect(400)
+    .expect(400)
 })
 
 // Should not update user with invalid name/email/password
@@ -190,16 +190,14 @@ test(`Should not update user with invalid values`, async()=>{
         await request(app)
         .patch(`/users/me`)
         .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
-        .send({
-            name: ``
-        })
+        .send({ name: `` })
         .expect(400)
     // No Password
     await request(app)
         .patch(`/users/me`)
         .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
         .send({
-            password: null
+            password: '  '
         })
         .expect(400)
     // Password too short
@@ -247,7 +245,7 @@ test(`Should not update user with invalid values`, async()=>{
 // Should not update user if unauthenticated
 test(`Should not update user fields for unauthenticated user`, async()=>{
     await request(app)
-    .patch(`/users/me`)
-    .send({"location": "Bora Bora"})
-    expect(400)
+        .patch(`/users/me`)
+        .send({"location": "Bora Bora"})
+        .expect(401)
 })
