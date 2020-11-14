@@ -23,9 +23,10 @@ test(`Should create task for user`, async ()=>{
             description: `From my test`
         })
         .expect(201)
-    const task = await Task.findById(response.body._id)
-    expect(task).not.toBeNull()
-    expect(task.completed).toEqual(false)
+    const task = await Task.findById(response.body._id);
+    expect(task).not.toBeNull();
+    expect(task.description).toBe(`From my test`);
+    expect(task.completed).toBe(false);
 })
 
 // Should not create task with invalid description/completed
@@ -74,25 +75,71 @@ test(`Should get only specific users tasks`, async ()=>{
     expect(response.body.length).toEqual(2)
 })
 
-
 // Should fetch user task by id
+test(`Should get specific users task by id`, async ()=>{
+    const response = await request(app)
+        .get(`/tasks/${taskThree._id}`)
+        .set(`Authorization`, `Bearer ${userTwo.tokens[0].token}`)
+        .send()
+        .expect(200)
+    const task = await Task.findById(response.body._id)
+    expect(task).not.toBeNull()
+})
+
 // Should not fetch user task by id if unauthenticated
+test(`Should not get users task by id if unauthenticated`, async ()=>{
+    await request(app)
+        .get(`/tasks/${taskThree._id}`)
+        .send()
+        .expect(401)
+})
+
 // Should not fetch other users task by id
+test(`Should not fetch another users task by id`, async()=>{
+    await request(app)
+        .get(`/tasks/${taskFour._id}`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send()
+        .expect(404)
+    })
+    
 // Should fetch only completed tasks
+test(`Should fetch only completed tasks`, async()=>{
+    const response = await request(app)
+        .get(`/tasks?completed=true`)
+        .set(`Authorization`, `Bearer ${userTwo.tokens[0].token}`)
+        .send()
+        .expect(200)
+    expect(response.body.length).toBe(2)
+})
+
 // Should fetch only incomplete tasks
-// Should sort tasks by description/completed/createdAt/updatedAt
+test(`Should fetch only completed tasks`, async()=>{
+    const response = await request(app)
+        .get(`/tasks?completed=false`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send()
+        .expect(200)
+    expect(response.body.length).toBe(1)
+})
+
+// Should sort tasks by description?/createdAt/updatedAt
+//tasks?sortBy=createdAt:asc
+
 // Should fetch page of tasks
 
 
 // Should not update other users task
 test(`Shouldn't update a different users tasks`, async()=>{
-    const response = await request(app)
+    await request(app)
         .patch(`/tasks/${taskThree._id}`)
         .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
         .send({
             description: `I am task number three`
         })
         .expect(404)
+    const task = await Task.findById(taskThree._id)
+    expect(task.description).toEqual(`Test Task 3`)
 })
 
 // Should not update task with invalid description/completed
@@ -103,7 +150,7 @@ test(`Should not update task with invalid values`, async()=>{
         .send({ completed: `Later` })
         .expect(400)
     const task = await Task.findById(taskFour._id)
-    expect(task.completed).toEqual(false)
+    expect(task.completed).toBe(true)
 })
 
 

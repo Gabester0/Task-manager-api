@@ -50,7 +50,7 @@ const taskThree = {
 const taskFour = {
     _id: new mongoose.Types.ObjectId(),
     description: `Test Task 4`,
-    completed: false,
+    completed: true,
     owner: userTwo._id
 }
 
