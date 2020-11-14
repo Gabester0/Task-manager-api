@@ -123,10 +123,68 @@ test(`Should fetch only completed tasks`, async()=>{
     expect(response.body.length).toBe(1)
 })
 
-// Should sort tasks by description?/createdAt/updatedAt
 //tasks?sortBy=createdAt:asc
+test(`Should fetch tasks sorted by createdAt in ascending order`, async()=>{
+    const response = await request(app)
+        .get(`/tasks?sortBy=createdAt:asc`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send()
+        .expect(200)
+    expect(response.body.length).toBe(2)
+    expect(response.body[0].description).toBe(`Test Task 1`)
+    expect(response.body[1].description).toBe(`Test Task 2`)
+})
+
+//tasks?sortBy=createdAt:desc
+test(`Should fetch tasks sorted by createdAt in descending order`, async()=>{
+    const response = await request(app)
+        .get(`/tasks?sortBy=createdAt:desc`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send()
+        .expect(200)
+    expect(response.body.length).toBe(2)
+    expect(response.body[0].description).toBe(`Test Task 2`)
+    expect(response.body[1].description).toBe(`Test Task 1`)
+})
+
+
+//updatedAt
+//tasks?sortBy=updatedAt:asc
+test(`Should fetch tasks sorted by updatedAt in ascending order`, async()=>{
+    const response = await request(app)
+        .get(`/tasks?sortBy=updatedAt:asc`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send()
+        .expect(200)
+    expect(response.body.length).toBe(2)
+    expect(response.body[0].description).toBe(`Test Task 1`)
+    expect(response.body[1].description).toBe(`Test Task 2`)
+})
+
+
+//tasks?sortBy=updatedAt:desc
+test(`Should fetch tasks sorted by updatedAt in descending order`, async()=>{
+    const response = await request(app)
+        .get(`/tasks?sortBy=updatedAt:desc`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send()
+        .expect(200)
+    expect(response.body.length).toBe(2)
+    expect(response.body[0].description).toBe(`Test Task 2`)
+    expect(response.body[1].description).toBe(`Test Task 1`)
+})
+
 
 // Should fetch page of tasks
+// /tasks?limit=2&skip=0
+test(`Should fetch paginated tasks with limit and skip`, async()=>{
+    const response = await request(app)
+        .get(`/tasks?limit=1&skip=1`)
+        .set(`Authorization`, `Bearer ${userOne.tokens[0].token}`)
+        .send()
+        .expect(200)
+    expect(response.body[0].description).toBe(`Test Task 2`)
+})
 
 
 // Should not update other users task
