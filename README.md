@@ -1,6 +1,6 @@
 # Task Manager REST API
 
-Built with:
+API is built with:
  - Express
  - Node
  - MongoDB
